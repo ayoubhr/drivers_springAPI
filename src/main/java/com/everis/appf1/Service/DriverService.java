@@ -95,7 +95,7 @@ public class DriverService {
 
 				for (int j = 0; j < races.size(); j++) {
 					String time = races.get(j).getAsJsonObject().get("time").getAsString();
-					/* System.out.println(time); */ // <-- devuelve el tiempo de la carrera en la posicion j del array de races.
+					/* System.out.println(time); */ // <-- devuelve el tiempo de la carrera en la posicion j del array de races
 					timers[i] = (int) (timers[i] + convertTimeToSecs(time));
 				}
 				object.addProperty("timer", timers[i]);
