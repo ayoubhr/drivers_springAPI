@@ -1,4 +1,5 @@
 package com.everis.appf1.Service;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.boot.configurationprocessor.json.JSONObject;
@@ -16,8 +17,6 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.JsonSyntaxException;
-
-//This
 
 @Service
 public class DriverService {
@@ -40,6 +39,23 @@ public class DriverService {
 	 */
 	private List<DriverEntity> findAll() {
 		  return repository.findAll();
+	}
+	
+	private JsonElement getSortedTimes(JsonObject[] req_dd) throws JSONException {
+	    List<JsonObject> list = new ArrayList<>();
+	    for (int i = 0; i < req_dd.length; i++) {
+	        list.add(req_dd[i].getAsJsonObject());
+	    }
+	    list.sort((a1, a2) -> {
+	        try {
+	            return Integer.compare(a1.get("timer").getAsInt(), a2.get("timer").getAsInt());
+	        } catch (Exception e) {
+	            e.printStackTrace();
+	        }
+	        return 0;
+	    });
+	    
+	    return new Gson().toJsonTree(list);
 	}
 	
 	/**
@@ -84,7 +100,7 @@ public class DriverService {
 				}
 				object.addProperty("timer", timers[i]);
 				drivers[i] = object;
-
+				
 			} else if (object.get("races") instanceof JsonObject) {
 				JsonObject races = object.get("races").getAsJsonObject();
 
@@ -137,8 +153,17 @@ public class DriverService {
 			System.out.println(jse.getMessage());
 		}
 
-		JsonObject[] req_d = sumOfRaceTimes(requested_data);
+		// With this method we get the sum of all race times returned in seconds, for each driver.
+		JsonObject[] req = sumOfRaceTimes(requested_data); 
+		// With this methid we get drivers sorted according to their global ranking.
+		JsonElement req_d = getSortedTimes(req);
 		
+		// On this loop we add the position property to the JSON according to the previous methods returns.
+		for(int i=0; i<req.length; i++) {
+			req_d.getAsJsonArray().get(i).getAsJsonObject().addProperty("position", i+1);
+		}
+		
+		//If Requested data isnt null, we create the JSON tree and send back the response to the client.
 		JsonElement response = null;
 		if(req_d != null) {
 			response = new Gson().toJsonTree(req_d);
@@ -187,7 +212,12 @@ public class DriverService {
 			System.out.println(jse.getMessage());
 		} 
 		
-		JsonObject[] req_d = sumOfRaceTimes(requested_data);
+		JsonObject[] req = sumOfRaceTimes(requested_data);
+		JsonElement req_d = getSortedTimes(req);
+		
+		for(int i=0; i<req.length; i++) {
+			req_d.getAsJsonArray().get(i).getAsJsonObject().addProperty("position", i+1);
+		}
 
 		JsonElement response = null;
 		if (req_d != null) {
@@ -246,6 +276,20 @@ public class DriverService {
 		} 
 
 		JsonObject[] req_d = sumOfRaceTimes(requested_data);
+		JsonElement global = getDrivers();
+		
+		for(int i = 0; i<22; i++) {
+			
+			if(global.getAsJsonArray().get(i).getAsJsonObject().get("name").getAsString().equals(req_d[0].getAsJsonObject().get("name").getAsString())) {
+				
+				int timer = global.getAsJsonArray().get(i).getAsJsonObject().get("timer").getAsInt();
+				int position = global.getAsJsonArray().get(i).getAsJsonObject().get("position").getAsInt();
+				
+				req_d[0].getAsJsonObject().remove("timer");
+				req_d[0].getAsJsonObject().addProperty("timer", timer);
+				req_d[0].getAsJsonObject().addProperty("position", position);
+			}
+		}
 		
 		JsonElement response = null;
 		if (req_d != null) {
