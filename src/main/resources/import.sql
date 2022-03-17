@@ -1,0 +1,1 @@
+insert into tabla (name, age, team, picture) values ("usuario_prueba", 35, "mercedes", "picture");
