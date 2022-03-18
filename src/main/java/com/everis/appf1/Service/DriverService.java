@@ -40,7 +40,7 @@ public class DriverService {
 	 *  CRUD operation to find all pilots from the database.
 	 * @return List<DriverEntity>
 	 */
-	private List<DriverEntity> findAll() {
+	public List<DriverEntity> findAll() {
 		  return repository.findAll();
 	}
 	
