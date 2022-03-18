@@ -32,12 +32,16 @@ public class DriverController {
 	@GetMapping("/ranking-gp")
 	@ResponseBody
 	public JsonElement findDriversByRace(@RequestParam int id) throws JSONException {
+		
+		// id represents number of race, from 0 to 9 both included, as there is 10 grand prix.
 		return service.getDriversByRace(id);
 	}
 	
 	@GetMapping("/driver")
 	@ResponseBody
 	public JsonElement findDriverInfo(@RequestParam String id) throws JSONException {
+		
+		// id represents the String name of the driver.
 		return service.getDriverInfo(id);
 	}
 }

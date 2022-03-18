@@ -29,7 +29,7 @@ public class DriverEntity {
 	}
 
 	/**
-	 * returns a JsonArray formation for the model DriverEntity
+	 * returns a JsonArray formation for the model DriverEntity, which maps the way the objects are stored on the mongoDB collection/documents.
 	 * 
 	 * @param int i
 	 */
