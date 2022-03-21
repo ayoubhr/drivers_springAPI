@@ -10,13 +10,13 @@ import com.everis.appf1.Entity.DriverEntity;
 import com.everis.appf1.Entity.Race;
 
 @DataMongoTest
-class DriverRepositoryTest {
+public class DriverRepositoryTest {
 	
 	@Autowired
-	private DriverRepository repository;
+	private DriverRepository repo;
 
 	@Test
-	void itShouldSaveAndFindDriver() {
+	public void itShouldSaveAndFindDriver() {
 		// Given
 		DriverEntity driver = new DriverEntity();
 		Race[] races = new Race[10];
@@ -27,10 +27,10 @@ class DriverRepositoryTest {
 		driver.setAge(35);
 		driver.setRaces(races);
 		
-		repository.save(driver);
+		repo.save(driver);
 		
 		// When
-		boolean exists = repository.findAll() != null;
+		boolean exists = repo.findAll() != null;
 		
 		// Then
 		assertThat(exists).isTrue();

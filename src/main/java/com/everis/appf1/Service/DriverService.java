@@ -31,7 +31,7 @@ public class DriverService {
 	 * 
 	 * @param repository
 	 */
-	DriverService(DriverRepository repository, RankingModel rm) {
+	public DriverService(DriverRepository repository, RankingModel rm) {
 		this.repository = repository;
 		this.rm = rm;
 	}
@@ -42,6 +42,27 @@ public class DriverService {
 	 */
 	public List<DriverEntity> findAll() {
 		  return repository.findAll();
+	}
+	
+	/**
+	 *  
+	 * @param time
+	 * @return
+	 */
+	public double convertTimeToSecs(String time) {
+		
+		// Self explanatory service, we convert the received string of time into seconds and respond back the result.
+		String[] hourMinSec = time.split(":");
+	    int hour = Integer.parseInt(hourMinSec[0]);
+	    int mins = Integer.parseInt(hourMinSec[1]);
+	    double secs =Double.parseDouble(hourMinSec[2]);
+	    
+	    int hoursInSecs = hour * 3600;
+	    int minsInSecs = mins * 60;
+	    
+	    double totalSecs = hoursInSecs + minsInSecs + secs;
+	    
+	    return totalSecs;
 	}
 	
 	private JsonElement getSortedTimes(JsonObject[] req_dd) throws JSONException {
@@ -62,27 +83,6 @@ public class DriverService {
 	    });
 	    
 	    return new Gson().toJsonTree(list);
-	}
-	
-	/**
-	 *  
-	 * @param time
-	 * @return
-	 */
-	private double convertTimeToSecs(String time) {
-		
-		// Self explanatory service, we convert the received string of time into seconds and respond back the result.
-		String[] hourMinSec = time.split(":");
-	    int hour = Integer.parseInt(hourMinSec[0]);
-	    int mins = Integer.parseInt(hourMinSec[1]);
-	    double secs =Double.parseDouble(hourMinSec[2]);
-	    
-	    int hoursInSecs = hour * 3600;
-	    int minsInSecs = mins * 60;
-	    
-	    double totalSecs = hoursInSecs + minsInSecs + secs;
-	    
-	    return totalSecs;
 	}
 	
 	/**
@@ -135,9 +135,11 @@ public class DriverService {
 		JsonElement[] requested_data = new JsonElement[22];
 
 		try {
-			// Iterate through the list of pilots obtained from the database. We create a json object and process the data.
+			// Iterate through the list of pilots obtained from the database (List<DriverEntity> drs), one pilot per loop. 
+			// We create a json object and process the data.
+			
 			// for each pilot we grab the name, picture, team and the array of races, set it on the RankingModel object
-			// and then parse it as requested_data.
+			// and then parse it as an element in array requested_data.
 			for (int i = 0; i < drs.size(); i++) {
 				String json = new Gson().toJson(drs.get(i));
 				JSONObject object = new JSONObject(json);
@@ -208,6 +210,9 @@ public class DriverService {
 				String picture = object.getString("picture");
 				String team = object.getString("team");
 
+				// data.get(i).getAsJsonObject gets us the driver as an object from the JsonArray data
+				// then .get("races").getAsJsonArray gets us the array of races thats sitting within the drivers JsonObject
+				// then .get(id = name of the race) gets us the specified race we are looking for as an object.
 				arr[i] = data.get(i).getAsJsonObject().get("races").getAsJsonArray().get(id).getAsJsonObject();
 
 				rm.setName(name);
@@ -252,6 +257,8 @@ public class DriverService {
 		
 		List<DriverEntity> drs = findAll();
 		JsonArray arr = null;
+		// Since we are looking only for one of the drivers information, requested_data on this service has only 1 position
+		// unlike previous services where we had 22 positions on the array to represent each one of the drivers.
 		JsonElement[] requested_data = new JsonElement[1];
 		
 		try {
@@ -267,6 +274,7 @@ public class DriverService {
 					String picture = object.getString("picture");
 					String team = object.getString("team");
 					int age = object.getInt("age");
+					
 					arr = data.get(i).getAsJsonObject().get("races").getAsJsonArray();
 					
 					rm.setName(name);
@@ -275,8 +283,8 @@ public class DriverService {
 					rm.setAge(age);
 					rm.setRaces(arr);
 					
-					// As opposed to the previous services, here we dont use rm.toString() directly as there is a slight change
-					// on the request, we are requested the age property aswell, thats not mapped on the original RankingModel
+					// As opposed to the previous services, here we dont use rm.toString() directly as there is a slight change on the request,
+					// we are requested the age property aswell, that property is not mapped on the original RankingModel toString() method
 					// as its a unique situation. Notice that the following String produces the exact same result as the toString method
 					// implemented on RankingModel with the added age property.
 					String format = "{" + "\"name\"" + ": " + "\"" + rm.getName() + "\"" + ", " + "\"age\"" + ": "
@@ -317,7 +325,7 @@ public class DriverService {
 		
 		JsonElement response = null;
 		if (req_d != null) {
-			response = new Gson().toJsonTree(req_d);
+			response = new Gson().toJsonTree(req_d); 
 		}
 		return response;
 	}
