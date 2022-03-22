@@ -310,8 +310,9 @@ public class DriverService {
 		// We have to add the position property "manually", we iterate through the JSON array object requested from getDrivers and see which one of the pilots
 		// coincides with the one we are processing, through the name property. Once detected, we add the proper timer and position to it, position on this context
 		// represents the users global ranking, to display on profile info on the FrontEnd in this case.
-		for(int i = 0; i<global.getAsJsonArray().size(); i++) {
-			
+		int number_of_pilots = global.getAsJsonArray().size();
+		
+		for(int i = 0; i<number_of_pilots; i++) {
 			if(global.getAsJsonArray().get(i).getAsJsonObject().get("name").getAsString().equals(req_d[0].getAsJsonObject().get("name").getAsString())) {
 				
 				int timer = global.getAsJsonArray().get(i).getAsJsonObject().get("timer").getAsInt();
@@ -320,6 +321,27 @@ public class DriverService {
 				req_d[0].getAsJsonObject().remove("timer");
 				req_d[0].getAsJsonObject().addProperty("timer", timer);
 				req_d[0].getAsJsonObject().addProperty("position", position);
+			}
+		}
+		
+		// Like in the previous loop where we added the global ranking of the driver, here we are adding the ranking of the driver
+		// for each specific race. We call the "getDriversByRace(race id)" that responds us with an array of all the drivers for the
+		// specified race, then match the driver we are targetting through the "name" property and then extract his position for
+		// each one of the races.
+		int number_of_races = req_d[0].getAsJsonObject().get("races").getAsJsonArray().size();
+		
+		for (int i = 0; i < number_of_pilots; i++) {
+			for (int j = 0; j < number_of_races; j++) {
+				JsonElement driversByRace = getDriversByRace(j);
+				JsonArray dataByRace = new Gson().fromJson(driversByRace, JsonArray.class);
+
+				String pilot_name = dataByRace.getAsJsonArray().get(i).getAsJsonObject().get("name").getAsString();
+				
+				if (pilot_name.equals(req_d[0].getAsJsonObject().get("name").getAsString())) {
+					int race_position = dataByRace.getAsJsonArray().get(i).getAsJsonObject().get("position").getAsInt();
+					req_d[0].getAsJsonObject().get("races").getAsJsonArray().get(j).getAsJsonObject()
+							.addProperty("position", race_position);
+				}
 			}
 		}
 		
