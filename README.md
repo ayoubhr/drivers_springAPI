@@ -7,5 +7,5 @@ The services connect to a mongoDB database where we load the JSON collection wit
 
 JSON collection: "data_dos.json" can be found on the app folder.
 
-mongoDB: load the "data_dos.json" on "admin" database. If you want to load it in a different mongoDB database you can change that in the file
+mongoDB: load the "data_dos.json" on "admin" database. If you want to load the file in a different mongoDB database you can change that in the file
 "drivers_springAPI/src/main/java/com/everis/appf1/Repository/MongoConfig.java".
