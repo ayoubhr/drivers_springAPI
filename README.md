@@ -1,7 +1,7 @@
 # drivers_springAPI
 Java spring basics
 
-Backend API Rest done with the Spring Boot application.
+Backend API Rest done with the Spring Boot framework.
 
 The services connect to a mongoDB database where we load the JSON collection with the documents.
 
